@@ -34,12 +34,21 @@ pgdbf -s 866 KLADR.dbf code "lower(name)" | psql -d kladr -U postgres
 pgdbf -s 866 SOCRBASE.dbf | psql -d kladr -U postgres
 pgdbf -s 866 STREET.dbf code "lower(name)" | psql -d kladr -U postgres
 
-psql -d kladr -U postgres -c "DROP INDEX IF EXISTS kladr_code_idx"
-psql -d kladr -U postgres -c "CREATE INDEX kladr_code_idx ON kladr (code)"
+psql -d kladr -U postgres -c "ALTER TABLE street ADD COLUMN code_part varchar(11)"
+
+#Индексы
+psql -d kladr -U postgres -c "DROP INDEX IF EXISTS kladr_code"
+psql -d kladr -U postgres -c "CREATE INDEX kladr_code ON kladr (code)"
+
+psql -d kladr -U postgres -c "DROP INDEX IF EXISTS doma_code"
+psql -d kladr -U postgres -c "CREATE INDEX doma_code ON doma (code)"
+
+psql -d kladr -U postgres -c "DROP INDEX IF EXISTS flat_code"
+psql -d kladr -U postgres -c "CREATE INDEX flat_code ON flat (code)"
 
 #Индекс по улицам нас пунктов и городов
-psql -d kladr -U postgres -c "UPDATE street SET code_part = substr(code,1,11)"
 psql -d kladr -U postgres -c "DROP INDEX IF EXISTS street_code_part_idx"
+psql -d kladr -U postgres -c "UPDATE street SET code_part = substr(code,1,11)"
 psql -d kladr -U postgres -c "CREATE INDEX street_code_part_idx ON street (code_part)"
 
 #Отметка об установке

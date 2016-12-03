@@ -194,15 +194,6 @@ ALTER TABLE street
   OWNER TO postgres;
 GRANT ALL ON TABLE street TO postgres;
 
--- Index: street_code
-
--- DROP INDEX street_code;
-
-CREATE INDEX street_code
-  ON street
-  USING btree
-  (code COLLATE pg_catalog."default");
-
 -- Index: street_lower_name_
 
 -- DROP INDEX street_lower_name_;
