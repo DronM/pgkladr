@@ -4,6 +4,8 @@
 #для Postgresql
 #
 
+PG_USER="postgres"
+
 # the directory of the script
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 # the temp directory used, within $DIR
@@ -26,33 +28,32 @@ wget http://www.gnivc.ru/html/gnivcsoft/KLADR/Base.7z
 #Распаковка
 p7zip -d Base.7z
 
+#нинициализация, очистка базы
+if [ -f $DIR/before.sql ]; then
+	psql -d kladr -U "$PG_USER" -f $DIR/before.sql
+fi
+
 # dbf to PG sql
-pgdbf -s 866 ALTNAMES.dbf | psql -d kladr -U postgres
-pgdbf -s 866 DOMA.dbf code "lower(name)" | psql -d kladr -U postgres
-pgdbf -s 866 FLAT.dbf code "lower(name)" | psql -d kladr -U postgres
-pgdbf -s 866 KLADR.dbf code "lower(name)" | psql -d kladr -U postgres
-pgdbf -s 866 SOCRBASE.dbf | psql -d kladr -U postgres
-pgdbf -s 866 STREET.dbf code "lower(name)" | psql -d kladr -U postgres
-
-psql -d kladr -U postgres -c "ALTER TABLE street ADD COLUMN code_part varchar(11)"
-
-#Индексы
-psql -d kladr -U postgres -c "DROP INDEX IF EXISTS kladr_code"
-psql -d kladr -U postgres -c "CREATE INDEX kladr_code ON kladr (code)"
-
-psql -d kladr -U postgres -c "DROP INDEX IF EXISTS doma_code"
-psql -d kladr -U postgres -c "CREATE INDEX doma_code ON doma (code)"
-
-psql -d kladr -U postgres -c "DROP INDEX IF EXISTS flat_code"
-psql -d kladr -U postgres -c "CREATE INDEX flat_code ON flat (code)"
+pgdbf -s 866 -c ALTNAMES.dbf | psql -d kladr -U "$PG_USER"
+pgdbf -s 866 -c DOMA.dbf code "lower(name)" | psql -d kladr -U "$PG_USER"
+pgdbf -s 866 -c FLAT.dbf code "lower(name)" | psql -d kladr -U "$PG_USER"
+pgdbf -s 866 -c KLADR.dbf code "lower(name)" | psql -d kladr -U "$PG_USER"
+pgdbf -s 866 -c SOCRBASE.dbf | psql -d kladr -U "$PG_USER"
+pgdbf -s 866 -c STREET.dbf code "lower(name)" | psql -d kladr -U "$PG_USER"
 
 #Индекс по улицам нас пунктов и городов
-psql -d kladr -U postgres -c "DROP INDEX IF EXISTS street_code_part_idx"
-psql -d kladr -U postgres -c "UPDATE street SET code_part = substr(code,1,11)"
-psql -d kladr -U postgres -c "CREATE INDEX street_code_part_idx ON street (code_part)"
+psql -d kladr -U "$PG_USER" -c "ALTER TABLE street ADD COLUMN code_part varchar(11)"
+psql -d kladr -U "$PG_USER" -c "UPDATE street SET code_part = substr(code,1,11)"
+psql -d kladr -U "$PG_USER" -c "CREATE INDEX street_code_part_idx ON street (code_part)"
 
 #Отметка об установке
-psql -d kladr -U postgres -c "INSERT INTO update_date VALUES(now())"
+psql -d kladr -U "$PG_USER" -c "INSERT INTO update_date VALUES(now())"
 
 #Права
-psql -d kladr -U postgres -c "GRANT SELECT ON ALL TABLES IN SCHEMA public TO PUBLIC";
+psql -d kladr -U "$PG_USER" -c "GRANT SELECT ON ALL TABLES IN SCHEMA public TO PUBLIC";
+
+#custim scripts
+if [ -f $DIR/after.sql ]; then
+	psql -d kladr -U "$PG_USER" -f $DIR/after.sql
+fi
+
