@@ -34,12 +34,12 @@ if [ -f $DIR/before.sql ]; then
 fi
 
 # dbf to PG sql
-pgdbf -s 866 -c ALTNAMES.dbf | psql -d kladr -U "$PG_USER"
-pgdbf -s 866 -c DOMA.dbf code "lower(name)" | psql -d kladr -U "$PG_USER"
-pgdbf -s 866 -c FLAT.dbf code "lower(name)" | psql -d kladr -U "$PG_USER"
-pgdbf -s 866 -c KLADR.dbf code "lower(name)" | psql -d kladr -U "$PG_USER"
-pgdbf -s 866 -c SOCRBASE.dbf | psql -d kladr -U "$PG_USER"
-pgdbf -s 866 -c STREET.dbf code "lower(name)" | psql -d kladr -U "$PG_USER"
+pgdbf -s 866 -c ALTNAMES.DBF | psql -d kladr -U "$PG_USER"
+pgdbf -s 866 -c DOMA.DBF code "lower(name)" | psql -d kladr -U "$PG_USER"
+pgdbf -s 866 -c FLAT.DBF code "lower(name)" | psql -d kladr -U "$PG_USER"
+pgdbf -s 866 -c KLADR.DBF code "lower(name)" | psql -d kladr -U "$PG_USER"
+pgdbf -s 866 -c SOCRBASE.DBF | psql -d kladr -U "$PG_USER"
+pgdbf -s 866 -c STREET.DBF code "lower(name)" | psql -d kladr -U "$PG_USER"
 
 #Индекс по улицам нас пунктов и городов
 psql -d kladr -U "$PG_USER" -c "ALTER TABLE street ADD COLUMN code_part varchar(11)"
